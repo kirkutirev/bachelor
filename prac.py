@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 import re
+import operator
 from copy import deepcopy
 from collections import OrderedDict
 from pandas import Series
@@ -137,9 +138,9 @@ def get_jaro_distance(first, second, *args, winkler=True, winkler_ajustment=True
     cl = min(len(get_prefix(first, second)), 4)
 
     if all([winkler, winkler_ajustment]):
-        return 1 - round((jaro + (scaling * cl * (1.0 - jaro))) * 100.0) / 100.0
+        return int(round((1 - (jaro + (scaling * cl * (1.0 - jaro)))) * 100.0))
 
-    return 1 - jaro
+    return int(round(((1 - jaro) * 100)))
 
 
 def score(first, second):
@@ -276,11 +277,11 @@ def dijkstra(matrix, start):
 def find_path(start_vert, cur_vert, prev_vector):
     path = []
     while cur_vert != start_vert:
-        path.append(cur_vert)
+        path.append(str(cur_vert))
         cur_vert = prev_vector[cur_vert]
-    path.append(start_vert)
+    path.append(str(start_vert))
+    #return '|'.join(path[::-1])
     return path[::-1]
-
 
 def get_closeness_centrality(matrix, dist):
     cc = []
@@ -424,7 +425,7 @@ if __name__ == "__main__":
     # algo = 'cosine'
     # algo = 'block'
 
-    cur_d = 60
+    cur_d = 100
 
     """
     print('matrix evaluating')
@@ -465,22 +466,20 @@ if __name__ == "__main__":
     }
 
     print('betweenness centrality evaluating')
-    d = [30, 50, 80, 100]
+    d = [10, 15, 20, 30, 50, 80, 100]
 
     if cur_d not in d:
-        temp_pos = 0
-        while d[temp_pos] < cur_d and temp_pos < len(d):
-            temp_pos += 1
-        d = d[:temp_pos] + [cur_d] + d[temp_pos:]
+        d.append(cur_d)
+    d.sort()
 
     d = d[::-1]
     all_bc = []
     for i in d:
-        print('d = {}'.format(i))
+        print('betweenness centrality for d = {}'.format(i))
         all_bc.append(get_betweenness_centrality(shortest_paths, s_shortest_paths, number_of_paths, i))
 
-    print('drawing histograms')
-    draw_histograms(sets_of_points=all_bc, xl='Betweenness centrality', ttl=algo + ' distance')
+    # print('drawing histograms')
+    # draw_histograms(sets_of_points=all_bc, xl='Betweenness centrality', ttl=algo + ' distance')
 
     print('graph initializing')
     cur_d_pos = d.index(cur_d)
