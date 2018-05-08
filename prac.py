@@ -1,17 +1,15 @@
 import matplotlib.pyplot as plt
-import networkx as nx
-import re
-import operator
-import math
-import sys
+#import networkx as nx
+import matplotlib.colors as mcolors
+from itertools import islice
 from my_metrics import *
 from my_graph_functions import *
 from my_i_o_functions import *
 from copy import deepcopy
-from collections import OrderedDict
 from pandas import Series
 from pylab import ceil, title, xlabel, ylabel
 from statistics import median
+from graphviz import Graph
 
 
 def merge_distances(d):
@@ -50,7 +48,7 @@ def draw_pdf(points, ttl='unknown', xl='------'):
     plt.show()
     pass
 
-
+'''
 def draw_graph(g, node_colors, node_labels, edge_labels):
     positions = nx.spring_layout(g)
     print('graph drawing')
@@ -62,18 +60,9 @@ def draw_graph(g, node_colors, node_labels, edge_labels):
     # nx.draw(g, with_labels=False, node_color=colors, node_size=5, style='dashed', width=0.05)
     # nx.draw_networkx_labels(g, pos=nx.spring_layout(g), labels=labels, font_size=5)
 
-    # txt = 'cur d = ' + str(cur_d)
-    # for i in range(len(node_colors)):
-    #    txt += '\ncluster ' + str(i) + ': ' + node_colors[i]
-    # plt.text(0.5, 0.5,
-    #         txt,
-    #         fontsize=10,
-    #         ha='left',
-    #        bbox=dict(alpha=0.1))
-
     plt.show()
     pass
-
+'''
 
 def normalization(obj, c_mins, c_maxs, n_min, n_max):
     n_obj = deepcopy(obj)
@@ -122,6 +111,11 @@ def remove_rejection(data, departments):
     return good_data
 
 
+def get_colors_for_clusters(number_of_clusters):
+    colors = list(islice(mcolors.cnames.keys(), number_of_clusters))
+    return colors
+
+
 if __name__ == "__main__":
     departments = 'ADEIFN'
 
@@ -136,28 +130,39 @@ if __name__ == "__main__":
     # algo = 'cosine'
     # algo = 'block'
 
-    cur_d = 100
+    cur_d = 20
 
-    """
     print('matrix evaluating')
-    matrix = get_adj_matrix(clusters, get_block_distance, departments)
+    matrix = get_adj_matrix(clusters, get_levenshtein_distance, departments)
+    # print_matrix_into_file('temp' + algo + '.txt', matrix=matrix)
+
     shortest_paths = []
     number_of_paths = []
     prev = []
-
+    
     print('dijkstra evaluating')
-    for i in range(len(clusters)):
-        temp = dijkstra(matrix, i)
-        shortest_paths.append(temp[0])
-        number_of_paths.append(temp[1])
-        prev.append(temp[2])
+    #for i in range(len(matrix)):
+    #    temp = find_shortest_paths(matrix, i)
+    #    shortest_paths.append(temp[0])
+    #    number_of_paths.append(temp[1])
+    #    prev.append(temp[2])
 
+    g = Graph()
+    for i in range(len(matrix)):
+        for j in range(i + 1, len(matrix)):
+            if matrix[i][j] < cur_d:
+                g.edge(str(i), str(j))
+
+    g.view()
+
+    """
     print('printing matrices to files')
     print_matrix_into_file('dijkstra for ' + algo + ' distance.txt', shortest_paths)
     print_matrix_into_file('number of paths for ' + algo + ' distance.txt', number_of_paths)
     print_matrix_into_file('previous vertices for ' + algo + ' distance.txt', prev)
     """
 
+    """
     print('reading matrices from files')
     shortest_paths = read_matrix_from_file('dijkstra for ' + algo + ' distance.txt')
     number_of_paths = read_matrix_from_file('number of paths for ' + algo + ' distance.txt')
@@ -166,15 +171,7 @@ if __name__ == "__main__":
     # for improving evaluating betweenness centrality
     s_shortest_paths = [sorted([(w, vert) for vert, w in enumerate(s)]) for s in shortest_paths]
 
-    node_colors = {
-        0: 'red',
-        1: 'purple',
-        2: 'yellow',
-        3: 'blue',
-        4: 'brown',
-        5: 'orange',
-        6: 'pink'
-    }
+    clusters_colors = get_colors_for_clusters(number_of_clusters=6)
 
     print('betweenness centrality evaluating')
     d = [10, 15, 20, 30, 50, 80, 100]
@@ -187,10 +184,10 @@ if __name__ == "__main__":
     all_bc = []
     for i in d:
         print('betweenness centrality for d = {}'.format(i))
-        all_bc.append(get_betweenness_centrality(shortest_paths, s_shortest_paths, number_of_paths, i))
+        all_bc.append(get_nodes_betweenness_centrality(shortest_paths, s_shortest_paths, number_of_paths, i))
 
-    # print('drawing histograms')
-    # draw_histograms(sets_of_points=all_bc, xl='Betweenness centrality', ttl=algo + ' distance')
+    print('drawing histograms')
+    draw_histograms(sets_of_points=all_bc, xl='Betweenness centrality', ttl=algo.capitalize() + ' distance')
 
     print('graph initializing')
     cur_d_pos = d.index(cur_d)
@@ -201,10 +198,11 @@ if __name__ == "__main__":
     for i in edges:
         g.add_edge(i[0], i[1], weight=shortest_paths[i[0]][i[1]])
 
-    node_colors = [node_colors[clusters[i][2]] for i in g.nodes()]
+    node_colors = [clusters_colors[clusters[i][2]] for i in g.nodes()]
     node_labels = {i: str(all_bc[cur_d_pos][i]) for i in g.nodes()}
     edge_labels = {i: str(shortest_paths[i[0]][i[1]]) for i in g.edges()}
 
-    draw_graph(g, node_colors, node_labels, edge_labels)
+    draw_graph(g, node_colors=node_colors, node_labels=node_labels, edge_labels=edge_labels)
+    """
 
     print('ok')

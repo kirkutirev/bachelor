@@ -1,7 +1,8 @@
 import sys
 
 
-def dijkstra(matrix, start):
+def find_shortest_paths(matrix, start):
+    """Dijkstra algorithm for O(n + m)."""
     inf = sys.maxsize
     used = [False] * len(matrix)
     distances = [inf] * len(matrix)
@@ -33,8 +34,10 @@ def dijkstra(matrix, start):
 def find_path(start_vert, cur_vert, prev_vector):
     path = []
     while cur_vert != start_vert:
+        print(cur_vert, end=' ')
         path.append(str(cur_vert))
         cur_vert = prev_vector[cur_vert]
+    print(cur_vert, end=' ')
     path.append(str(start_vert))
     #return '|'.join(path[::-1])
     return path[::-1]
@@ -61,7 +64,7 @@ def get_graph_centrality(matrix, dist):
     return gc
 
 
-def get_betweenness_centrality(dists, s_dists, paths, maxdist):
+def get_nodes_betweenness_centrality(dists, s_dists, paths, maxdist):
     bc = [0.0] * len(dists)
     for v in range(len(s_dists)):
         for i, (d_v, s) in enumerate(s_dists[v]):

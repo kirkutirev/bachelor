@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from copy import deepcopy
 import math
 
 def get_levenshtein_distance(first, second, *args):
@@ -102,7 +103,7 @@ def get_euclidian_distance(first, second, deps_labels):
     vect_f = object_to_vector(first, deps_labels)
     vect_s = object_to_vector(second, deps_labels)
     under_root = list(map(lambda x: (x[0] - x[1]) ** 2, zip(vect_f.values(), vect_s.values())))
-    return int(round(math.sqrt(sum(under_root))))
+    return int(math.ceil(math.sqrt(sum(under_root))))
 
 
 def get_block_distance(first, second, deps_labels):
@@ -118,7 +119,7 @@ def get_cosine_distance(first, second, deps_labels):
     fst_len = math.sqrt(sum(list(map(lambda x: x ** 2, vect_f.values()))))
     snd_len = math.sqrt(sum(list(map(lambda x: x ** 2, vect_s.values()))))
     prod = sum(list(map(lambda x: x[0] * x[1], zip(vect_f.values(), vect_s.values()))))
-    return int(round((1 - prod / fst_len / snd_len) * 100))
+    return int(math.ceil((1 - prod / fst_len / snd_len) * 100))
 
 
 def object_to_vector(obj, deps_labels):
