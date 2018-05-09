@@ -16,6 +16,10 @@ class MyGraph:
     get_cm.argtypes = [c_void_p]
     get_cm.restype = py_object
 
+    get_mm = lib.get_mindist_matrix
+    get_mm.argtypes = [c_void_p]
+    get_mm.restype = py_object
+
     get_nbc = lib.get_node_betweenness_centrality
     get_nbc.argtypes = [c_void_p, c_int]
     get_nbc.restype = py_object
@@ -28,6 +32,9 @@ class MyGraph:
 
     def get_node_betweenness_centrality(self, maxdist):
         return MyGraph.get_nbc(self.graph, maxdist)
+
+    def get_mindist_matrix(self):
+        return MyGraph.get_mm(self.graph)
 
     def find_graph_info(self):
         MyGraph.find_gi(self.graph)
