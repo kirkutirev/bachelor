@@ -4,7 +4,7 @@ import matplotlib.colors as mcolors
 from itertools import islice
 from my_metrics import *
 from my_graph_functions import *
-from my_cppgraph_wrapper import *
+import my_cppgraph_wrapper as mygraph
 from my_i_o_functions import *
 from copy import deepcopy
 from pandas import Series
@@ -141,20 +141,14 @@ if __name__ == "__main__":
     number_of_paths = []
     prev = []
     
-    print('dijkstra evaluating')
+    #print('dijkstra evaluating')
     #for i in range(len(matrix)):
     #    temp = find_shortest_paths(matrix, i)
     #    shortest_paths.append(temp[0])
     #    number_of_paths.append(temp[1])
     #    prev.append(temp[2])
 
-    g = Graph()
-    for i in range(len(matrix)):
-        for j in range(i + 1, len(matrix)):
-            if matrix[i][j] < cur_d:
-                g.edge(str(i), str(j))
-
-    g.view()
+    g = mygraph.MyGraph(matrix)
 
     """
     print('printing matrices to files')

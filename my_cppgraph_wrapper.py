@@ -4,40 +4,33 @@ from ctypes import cdll, c_int, c_void_p, py_object
 class MyGraph:
     lib = cdll.LoadLibrary('./my_graph.so')
 
-    new_g = lib.new_graph
-    new_g.argtypes = [py_object]
-    new_g.restype = c_void_p
+    _new_g = lib.new_graph
+    _new_g.argtypes = [py_object]
+    _new_g.restype = c_void_p
 
-    find_gi = lib.find_graph_info
-    find_gi.argtypes = [c_void_p]
-    find_gi.restype = None
+    _get_cm = lib.get_current_matrix
+    _get_cm.argtypes = [c_void_p]
+    _get_cm.restype = py_object
 
-    get_cm = lib.get_current_matrix
-    get_cm.argtypes = [c_void_p]
-    get_cm.restype = py_object
+    _get_mm = lib.get_mindist_matrix
+    _get_mm.argtypes = [c_void_p]
+    _get_mm.restype = py_object
 
-    get_mm = lib.get_mindist_matrix
-    get_mm.argtypes = [c_void_p]
-    get_mm.restype = py_object
-
-    get_nbc = lib.get_node_betweenness_centrality
-    get_nbc.argtypes = [c_void_p, c_int]
-    get_nbc.restype = py_object
+    _get_nbc = lib.get_node_betweenness_centrality
+    _get_nbc.argtypes = [c_void_p, c_int]
+    _get_nbc.restype = py_object
 
     def __init__(self, matrix):
-        self.graph = MyGraph.new_g(matrix)
+        self._graph = MyGraph._new_g(matrix)
 
     def __repr__(self):
         return 'not implemented yet'
 
     def get_node_betweenness_centrality(self, maxdist):
-        return MyGraph.get_nbc(self.graph, maxdist)
+        return MyGraph._get_nbc(self._graph, maxdist)
 
     def get_mindist_matrix(self):
-        return MyGraph.get_mm(self.graph)
-
-    def find_graph_info(self):
-        MyGraph.find_gi(self.graph)
+        return MyGraph._get_mm(self._graph)
 
 
 if __name__ == '__main__':

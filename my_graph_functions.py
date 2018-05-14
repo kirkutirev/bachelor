@@ -2,7 +2,7 @@ import sys
 
 
 def find_shortest_paths(matrix, start):
-    """Dijkstra algorithm for O(n + m)."""
+    """Dijkstra algorithm for O(n^2)."""
     inf = sys.maxsize
     used = [False] * len(matrix)
     distances = [inf] * len(matrix)

@@ -26,33 +26,6 @@ public:
 		init_other_matrices();
 	}
 
-	void find_shortest_paths() {
-		for(int i = 0; i < cur_edges.size(); i++) {
-			dijkstra(cur_edges, i);
-		}
-	}
-
-	void calc_node_betweenness_centrality(int max_dist) {
-		vector<int> bc;
-		rebuild_cur_edges(max_dist);
-		find_shortest_paths();
-
-		for(int v = 0; v < cur_edges.size(); v++) {
-			double cur = 0;
-			for(int i = 0; i < cur_edges[v].size(); i++) {
-				for(int j = i + 1; j < cur_edges[v].size(); j++) {
-					int s = cur_edges[v][i].first;
-					int t = cur_edges[v][j].first;
-					if(mindist_matrix[s][t] == mindist_matrix[s][v] + mindist_matrix[v][t]) {
-						cur += (double) number_of_paths[s][v] * number_of_paths[v][t] / number_of_paths[s][t];
-					}
-				}
-			}
-			bc.push_back(round(cur));
-		}
-		node_betweenness_centrality = bc;
-	}
-
 	PyObject* get_current_matrix() {
 		vector< vector<int> > cur(cur_edges.size(), vector<int>(cur_edges.size(), -1));
 		for(int i = 0; i < cur_edges.size(); i++) {
@@ -64,6 +37,7 @@ public:
 	}
 
 	PyObject* get_mindist_matrix() {
+		find_shortest_paths(cur_edges);
 		return vector2d_to_pylist2d(mindist_matrix);
 	}
 
@@ -111,6 +85,33 @@ private:
 	bool check_modularity() {
 		//to do
 		return true;
+	}
+
+	void find_shortest_paths(vector< vector< pair<int, int> > > & edges) {
+		for(int i = 0; i < size; i++) {
+			dijkstra(edges, i);
+		}
+	}
+
+	void calc_node_betweenness_centrality(int max_dist) {
+		vector<int> bc;
+		rebuild_cur_edges(max_dist);
+		find_shortest_paths(cur_edges);
+
+		for(int v = 0; v < cur_edges.size(); v++) {
+			double cur = 0;
+			for(int i = 0; i < cur_edges[v].size(); i++) {
+				for(int j = i + 1; j < cur_edges[v].size(); j++) {
+					int s = cur_edges[v][i].first;
+					int t = cur_edges[v][j].first;
+					if(mindist_matrix[s][t] == mindist_matrix[s][v] + mindist_matrix[v][t]) {
+						cur += (double) number_of_paths[s][v] * number_of_paths[v][t] / number_of_paths[s][t];
+					}
+				}
+			}
+			bc.push_back(round(cur));
+		}
+		node_betweenness_centrality = bc;
 	}
 
 	void calc_edge_betweenness_centrality() {
@@ -239,20 +240,16 @@ extern "C" {
 		return new Graph(data);
 	}
 
-	void find_graph_info(Graph* g) {
-		g->find_shortest_paths();
-	}
-
 	PyObject* get_current_matrix(Graph* g) {
 		return g->get_current_matrix();
 	}
 
-	PyObject* get_node_betweenness_centrality(Graph* g, int max_dist) {
-		return g->get_node_betweenness_centrality(max_dist);
-	}
-
 	PyObject* get_mindist_matrix(Graph* g) {
 		return g->get_mindist_matrix();
+	}
+
+	PyObject* get_node_betweenness_centrality(Graph* g, int max_dist) {
+		return g->get_node_betweenness_centrality(max_dist);
 	}
 
 	void find_communities(Graph* g, int max_dist) {
