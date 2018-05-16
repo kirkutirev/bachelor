@@ -124,10 +124,10 @@ public:
 		int cur_group_nmb = 0;
 		for(int i = 0; i < size; i++) {
 			if(numbers[i] == -1) {
-				int nmb_of_nbrs = lower_bound(cur_edges[i].begin(), cur_edges[i].end(), max_dist, compare_for_lb) - cur_edges[i].begin();
+				int nmb_of_nbrs = lower_bound(cur_edges[i].begin(), cur_edges[i].end(), eps + 1, compare_for_lb) - cur_edges[i].begin();
 				if(nmb_of_nbrs >= m) {
 					numbers[i] = cur_group_nmb;
-					extend(i, max_dist, eps, numbers, cur_group_nmb);
+					extend(i, eps, numbers, cur_group_nmb);
 					cur_group_nmb++;
 				}
 			}
@@ -164,7 +164,7 @@ private:
 	const int inf = 1e8;
 	int size;
 	
-	void extend(int vert, int max_dist, int eps, vector<int> &numbers, int cur_group_nmb) {
+	void extend(int vert, int eps, vector<int> &numbers, int cur_group_nmb) {
 		queue<int> q;
 		q.push(vert);
 		while(!q.empty()) {
@@ -188,7 +188,7 @@ private:
 			}
 		}
 	}
-	
+
 	bool check_modularity() {
 		//to do
 		return true;
