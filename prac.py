@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
-#import networkx as nx
+import networkx as nx
+from networkx.algorithms import community
 import matplotlib.colors as mcolors
 from itertools import islice
 from my_metrics import *
@@ -72,11 +73,11 @@ def normalization(obj, c_mins, c_maxs, n_min, n_max):
     return n_obj
 
 
-def normalize(data, departments, n_min=1, n_max=100):
+def normalize(data, departments, new_min=1, new_max=100):
     seprated_data = split_departments_data(data, departments)
     minimums = {i: min(seprated_data[i], key=lambda x: x[0])[0] for i in departments}
     maximums = {i: max(seprated_data[i], key=lambda x: x[0])[0] for i in departments}
-    normalized = list([normalization(obj, minimums, maximums, n_min, n_max) for obj in data])
+    normalized = list([normalization(obj, minimums, maximums, new_min, new_max) for obj in data])
     return normalized
 
 
@@ -123,7 +124,7 @@ if __name__ == "__main__":
     print('work with clusters')
     clusters = read_file('Clusters_with_duration_KMeans7_L.txt')
     clusters = remove_rejection(clusters, departments)
-    clusters = normalize(clusters, departments, n_min=1, n_max=100)
+    clusters = normalize(clusters, departments, new_min=1, new_max=100)
 
     algo = 'levenshtein'
     # algo = 'jaro'
@@ -134,7 +135,7 @@ if __name__ == "__main__":
     cur_d = 20
 
     print('matrix evaluating')
-    matrix = get_adj_matrix(clusters, get_levenshtein_distance, departments)
+    #matrix = get_adj_matrix(clusters, get_levenshtein_distance, departments)
     # print_matrix_into_file('temp' + algo + '.txt', matrix=matrix)
 
     shortest_paths = []
@@ -148,8 +149,20 @@ if __name__ == "__main__":
     #    number_of_paths.append(temp[1])
     #    prev.append(temp[2])
 
-    g = mygraph.MyGraph(matrix)
+    matrix = [[-1, 2, -1, -1, 2, 1],
+              [2, -1, 2, -1, -1, 1],
+              [-1, 2, -1, 2, -1, 1],
+              [-1, -1, 2, -1, 2, 1],
+              [2, -1, -1, 2, -1, 1],
+              [1, 1, 1, 1, 1, -1]]
 
+    g = mygraph.MyGraph(matrix)
+    g.find_shortest_paths()
+    print(g.get_mindist_matrix())
+    g.dbscan(50, 50, 4)
+    g.print_communities()
+    print(g.get_communities())
+    
     """
     print('printing matrices to files')
     print_matrix_into_file('dijkstra for ' + algo + ' distance.txt', shortest_paths)
