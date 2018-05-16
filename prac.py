@@ -159,10 +159,10 @@ if __name__ == "__main__":
     g = mygraph.MyGraph(matrix)
     g.find_shortest_paths()
     print(g.get_mindist_matrix())
-    g.dbscan(50, 50, 4)
+    g.dbscan(2, 1, 4)
     g.print_communities()
     print(g.get_communities())
-    
+
     """
     print('printing matrices to files')
     print_matrix_into_file('dijkstra for ' + algo + ' distance.txt', shortest_paths)

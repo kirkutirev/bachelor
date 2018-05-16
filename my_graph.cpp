@@ -81,8 +81,8 @@ public:
 	}
 
 	void print_communities() {
-		cout << "communities size = " << communities.size() << endl;
 		for(int i = 0; i < communities.size(); i++) {
+			cout << "communitiy number " << i << endl;
 			for(int j = 0; j < communities[i].size(); j++) {
 				cout << communities[i][j] << " ";
 			}
@@ -132,31 +132,7 @@ public:
 				}
 			}
 		}
-
 		build_communities(numbers, cur_group_nmb);
-	}
-
-	void extend(int vert, int max_dist, int eps, vector<int> &numbers, int cur_group_nmb) {
-		queue<int> q;
-		q.push(vert);
-		while(!q.empty()) {
-			int cur = q.front();
-			q.pop();
-			for(int i = 0; i < cur_edges[cur].size(); i++) {
-				int to = cur_edges[cur][i].first;
-				if(cur_edges[cur][i].second <= eps && numbers[to] == -1) {
-					numbers[to] = cur_group_nmb;
-					q.push(to);
-				}
-			}
-		}
-	}
-
-	void build_communities(vector<int> &numbers, int cur_group_nmb) {
-		communities = vector< vector<int> >(cur_group_nmb, vector<int>());
-		for(int i = 0; i < numbers.size(); i++) {
-			communities[numbers[i]].push_back(i);
-		}
 	}
 
 	void calc_edge_betweenness_centrality() {
@@ -187,6 +163,31 @@ public:
 private:
 	const int inf = 1e8;
 	int size;
+	
+	void extend(int vert, int max_dist, int eps, vector<int> &numbers, int cur_group_nmb) {
+		queue<int> q;
+		q.push(vert);
+		while(!q.empty()) {
+			int cur = q.front();
+			q.pop();
+			for(int i = 0; i < cur_edges[cur].size(); i++) {
+				int to = cur_edges[cur][i].first;
+				if(cur_edges[cur][i].second <= eps && numbers[to] == -1) {
+					numbers[to] = cur_group_nmb;
+					q.push(to);
+				}
+			}
+		}
+	}
+
+	void build_communities(vector<int> &numbers, int cur_group_nmb) {
+		communities = vector< vector<int> >(cur_group_nmb, vector<int>());
+		for(int i = 0; i < numbers.size(); i++) {
+			if(numbers[i] != -1) {
+				communities[numbers[i]].push_back(i);
+			}
+		}
+	}
 	
 	bool check_modularity() {
 		//to do
