@@ -42,6 +42,7 @@ def find_path(start_vert, cur_vert, prev_vector):
     #return '|'.join(path[::-1])
     return path[::-1]
 
+
 def get_closeness_centrality(matrix, dist):
     cc = []
     for i in range(len(matrix[0])):

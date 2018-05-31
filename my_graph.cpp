@@ -124,15 +124,38 @@ public:
 		int cur_group_nmb = 0;
 		for(int i = 0; i < size; i++) {
 			if(numbers[i] == -1) {
-				int nmb_of_nbrs = lower_bound(cur_edges[i].begin(), cur_edges[i].end(), eps + 1, compare_for_lb) - cur_edges[i].begin();
+				int nmb_of_nbrs = get_number_of_neighbours(i, eps);
 				if(nmb_of_nbrs >= m) {
 					numbers[i] = cur_group_nmb;
-					extend(i, eps, numbers, cur_group_nmb);
+					extend(i, eps, m, numbers, cur_group_nmb);
 					cur_group_nmb++;
 				}
 			}
 		}
 		build_communities(numbers, cur_group_nmb);
+	}
+
+	int get_number_of_neighbours(int cur_vertex, int eps) {
+		return lower_bound(cur_edges[cur_vertex].begin(), cur_edges[cur_vertex].end(), eps + 1, compare_for_lb) - cur_edges[cur_vertex].begin();
+	}
+
+	void extend(int vert, int eps, int m, vector<int> &numbers, int cur_group_nmb) {
+		queue<int> q;
+		q.push(vert);
+		while(!q.empty()) {
+			int cur = q.front();
+			q.pop();
+			int nmb_of_nbrs = get_number_of_neighbours(cur, eps);
+			if(nmb_of_nbrs >= m) {
+				for(int i = 0; i < cur_edges[cur].size(); i++) {
+					int to = cur_edges[cur][i].first;
+					if(cur_edges[cur][i].second <= eps && numbers[to] == -1) {
+						numbers[to] = cur_group_nmb;
+						q.push(to);
+					}
+				}
+			}
+		}
 	}
 
 	void calc_edge_betweenness_centrality() {
@@ -164,22 +187,6 @@ private:
 	const int inf = 1e8;
 	int size;
 	
-	void extend(int vert, int eps, vector<int> &numbers, int cur_group_nmb) {
-		queue<int> q;
-		q.push(vert);
-		while(!q.empty()) {
-			int cur = q.front();
-			q.pop();
-			for(int i = 0; i < cur_edges[cur].size(); i++) {
-				int to = cur_edges[cur][i].first;
-				if(cur_edges[cur][i].second <= eps && numbers[to] == -1) {
-					numbers[to] = cur_group_nmb;
-					q.push(to);
-				}
-			}
-		}
-	}
-
 	void build_communities(vector<int> &numbers, int cur_group_nmb) {
 		communities = vector< vector<int> >(cur_group_nmb, vector<int>());
 		for(int i = 0; i < numbers.size(); i++) {

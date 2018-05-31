@@ -2,6 +2,7 @@ from collections import OrderedDict
 from copy import deepcopy
 import math
 
+
 def get_levenshtein_distance(first, second, *args):
     fst_places = ''.join(first[0])
     snd_places = ''.join(second[0])
